@@ -15,8 +15,8 @@ Mybatis插件使用 >>>>
       初衷：本项目将为多数据源进行同步，application.properties中会配置多个数据源，
            util包下面Dynamic的类接合注解使用将路由到配置的库
            
-      具体使用：在Service层中用@DataSource标记库，不标记则默认使用主库，如下demo将使用名称为ods的数据库
-            @DataSource(name="ods")
+      具体使用：在Service层中用@DataSource标记库，不标记则默认使用主库，如下demo将使用名称为xxx的数据库
+            @DataSource(name="xxx")
 			public int selectUser(){
 				return userMapper.selectByPrimaryKey(1).getId();
 			}
