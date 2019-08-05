@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crazy.portal.dao.ScheduleMonitorMapper">
+  <resultMap id="BaseResultMap" type="com.crazy.portal.entity.ScheduleMonitor">
+    <id column="schedule_monitor_id" jdbcType="BIGINT" property="scheduleMonitorId" />
+    <result column="schedule_name" jdbcType="VARCHAR" property="scheduleName" />
+    <result column="schedule_code" jdbcType="VARCHAR" property="scheduleCode" />
+    <result column="schedule_detail" jdbcType="VARCHAR" property="scheduleDetail" />
+    <result column="begin_time" jdbcType="TIMESTAMP" property="beginTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="schedule_status" jdbcType="BIT" property="scheduleStatus" />
+    <result column="last_record_time" jdbcType="TIMESTAMP" property="lastRecordTime" />
+    <result column="has_send_email" jdbcType="BIT" property="hasSendEmail" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    schedule_monitor_id, schedule_name, schedule_code, schedule_detail, begin_time, end_time, 
+    schedule_status, last_record_time
+  </sql>
+  
+  <select id="getCurrentMonitor" resultMap="BaseResultMap">
+    SELECT * FROM (
+  		SELECT <include refid="Base_Column_List" /> FROM t_schedule_monitor T 
+  		WHERE T.SCHEDULE_CODE = #{scheduleCode} 
+  			AND T.END_TIME IS NULL
+  		ORDER BY T.BEGIN_TIME DESC
+  	) t limit 1
+  </select>
+
+  <select id="getErrorScheduleAndNotSendEmail" resultMap="BaseResultMap">
+    SELECT *  FROM t_schedule_monitor where schedule_status = -1 and has_send_email = 0
+  </select>
+
+  <select id="getLatestDataByCode" resultMap="BaseResultMap">
+    SELECT * FROM (
+  		SELECT <include refid="Base_Column_List" /> FROM t_schedule_monitor T 
+  		WHERE T.SCHEDULE_CODE = #{scheduleCode} 
+  			AND T.LAST_RECORD_TIME IS NOT NULL 
+  			AND T.SCHEDULE_STATUS = 1
+  		ORDER BY T.LAST_RECORD_TIME DESC
+  	) t limit 1
+  </select>
+  
+  <insert id="insertSelective" parameterType="com.crazy.portal.entity.ScheduleMonitor">
+    insert into t_schedule_monitor
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="scheduleMonitorId != null">
+        schedule_monitor_id,
+      </if>
+      <if test="scheduleName != null">
+        schedule_name,
+      </if>
+      <if test="scheduleCode != null">
+        schedule_code,
+      </if>
+      <if test="scheduleDetail != null">
+        schedule_detail,
+      </if>
+      <if test="beginTime != null">
+        begin_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="scheduleStatus != null">
+        schedule_status,
+      </if>
+      <if test="lastRecordTime != null">
+        last_record_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="scheduleMonitorId != null">
+        #{scheduleMonitorId,jdbcType=BIGINT},
+      </if>
+      <if test="scheduleName != null">
+        #{scheduleName,jdbcType=VARCHAR},
+      </if>
+      <if test="scheduleCode != null">
+        #{scheduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="scheduleDetail != null">
+        #{scheduleDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="beginTime != null">
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="scheduleStatus != null">
+        #{scheduleStatus,jdbcType=BIT},
+      </if>
+      <if test="lastRecordTime != null">
+        #{lastRecordTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crazy.portal.entity.ScheduleMonitor">
+    update t_schedule_monitor
+    <set>
+      <if test="scheduleName != null">
+        schedule_name = #{scheduleName,jdbcType=VARCHAR},
+      </if>
+      <if test="scheduleCode != null">
+        schedule_code = #{scheduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="scheduleDetail != null">
+        schedule_detail = #{scheduleDetail,jdbcType=VARCHAR},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="scheduleStatus != null">
+        schedule_status = #{scheduleStatus,jdbcType=BIT},
+      </if>
+      <if test="lastRecordTime != null">
+        last_record_time = #{lastRecordTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="hasSendEmail != null">
+        has_send_email = #{hasSendEmail,jdbcType=BIT}
+      </if>
+    </set>
+    where schedule_monitor_id = #{scheduleMonitorId,jdbcType=BIGINT}
+  </update>
+  
+</mapper>

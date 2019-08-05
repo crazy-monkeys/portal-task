@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="data-treating:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="portal-task.war">
+      <element id="artifact" artifact-name="data-treating:war exploded" />
+    </root>
+  </artifact>
+</component>

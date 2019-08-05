@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" >
+  <head>
+    <meta charset="utf-8"></meta>
+    <title>定时任务系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta http-equiv="Cache-Control" content="max-age=7200" />
+	<meta http-equiv="Expires" content="Never expire" />
+	
+       
+		<script th:src="@{/common/jquery-1.7.2.min.js}"></script>
+		
+		<link th:href="@{/common/flatui/dist/css/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+		<link th:href="@{/common/flatui/dist/css/flat-ui.css}" rel="stylesheet" />
+    	<link th:href="@{/common/flatui/docs/assets/css/demo.css}" rel="stylesheet" />
+    	<script th:src="@{/common/flatui/dist/js/vendor/jquery.min.js}"></script>
+    	<script th:src="@{/common/flatui/dist/js/vendor/video.js}"></script>
+    	<script th:src="@{/common/flatui/dist/js/flat-ui.min.js}"></script>
+    	<script th:src="@{/common/flatui/docs/assets/js/application.js}"></script>
+    	
+    	<!-- contextMenu -->
+    	<script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
+    	<script th:src="@{/common/flatui/bootstrap-contextmenu.js}"></script>
+    	
+    	<!-- messenger -->
+    	<script th:src="@{/common/messenger/js/messenger.min.js}"></script>
+    	<link th:href="@{/common/messenger/css/messenger.css}" rel="stylesheet" />
+    	<link th:href="@{/common/messenger/css/messenger-theme-block.css}" rel="stylesheet" />
+    	
+</head>
+<style type="text/css">
+.form-actions {
+    display: block;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e5e5e5;
+    margin-bottom: 1px;
+    margin-top: 1px;
+    padding: 8px 8px 10px;
+}
+.form-group {
+    margin-bottom: 10px;
+}
+.todo-search:before{
+	content:""
+}
+.right{
+	position: absolute;
+	right:3%;
+}
+.green {color:green;}
+.gray {color:gray;}
+.yellow {color:yellow;}
+html, body { 
+	padding: 0; 
+	margin: 0; 
+	height: 100%;
+	font-size: 16px;
+    background-repeat: no-repeat; 
+    background-position: left top;
+    background-color: #242645; 
+    font-family: 'Source Sans Pro';
+    background-attachment: fixed;
+    background-size: cover; 
+    background-image: url(/data-treating/login/img/Starry.jpg);
+}
+</style>
+<body > 
+	<div class="container">
+		<p></p>
+        <div class="todo">
+            <div class="todo-search">
+              	<form id="form1" th:action="@{/scheduleJob/list}" method="post" >
+					 <select id="searchObjGroupSelect" name="jobGroup" data-toggle="select" class="select select-sm select-inverse">
+					 	<option th:each="jg:${jobGroupList}" th:selected="${jg.groupCode} == ${jobGroup}" th:value="${jg.groupCode}" th:text="${jg.groupName}"></option>
+					 </select>
+					 <a onclick="fun_add();" class="btn btn-sm btn-inverse add_section " data-toggle="modal" >
+				 	 	<span class="fui-plus"></span>&nbsp;&nbsp;新增定时任务
+				 	 </a>
+				 </form>
+            </div>
+            <ul>
+              <li th:class="${item.jobStatus == 'NORMAL'}?'todo-done':''" 
+                  th:each="item:${scheduleJobVoList}" data-toggle="context" 
+                  th:attr="data-target='#context-menu'+${item.jobId}"
+                  th:onclick="'javascript:fun_pause('+${item.jobId}+',\''+${item.jobStatus}+'\',this)'"
+                  oncontextmenu="closeAllCM()">
+                <div class="todo-icon fui-time"></div>
+                <div class="todo-content">
+                  <h4 class="todo-name" th:text="${item.jobName}">
+                  </h4>
+                                                       时间表达式：<span th:text="${item.cronExpression}"></span>
+                        &nbsp;&nbsp;&nbsp;
+                                                       任务描述：<span th:text="${item.jobDesc}"></span>
+                  <br/>
+                  <div th:id="'statusDiv'+${item.jobId}" style="font-size:18px;">
+                 	  <span th:each="exec:${executingJobList}" th:if="${exec.jobId} == ${item.jobId} and ${exec.jobStatus == 'NORMAL'}"
+                 	 	  class="green" >●</span>
+                 	  <span class="gray" th:if="${item.jobStatus == 'PAUSED'}">●</span>
+                 	  <span class="yellow" th:if="${item.jobStatus == 'BLOCKED'}">●</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+        </div>
+        <div th:id="'context-menu'+${item.jobId}" th:each="item:${scheduleJobVoList}" >
+	      	<ul class="dropdown-menu" role="menu">
+           	   <li><a th:onclick="'fun_update('+${item.jobId}+');'">修改</a></li>
+           	   <li><a th:onclick="'fun_delete('+${item.jobId}+')'">删除</a></li>
+	           <li><a th:onclick="'fun_runonce('+${item.jobId}+')'">跑一次</a></li>
+	      	</ul>
+	    </div>
+    </div>
+
+  <!--edit-->
+  <div aria-hidden="false" id="editModal" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" class="modal fade in exam_newbox" >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+          <span id="myModalLabel" class="modal-title" style="font-weight:bold;"></span>
+        </div>
+        <div class="modal-body role_over">
+           <form class="form-horizontal" role="form">
+              <input name="jobId" value="" type="hidden" />
+              <div class="form-group ">
+                 <label class="col-sm-3 control-label">任务名称</label>
+                 <div class="col-sm-9">
+                 	  <select name="jobName" data-toggle="select" class="select select-inverse" style="width: 300px;" >
+		       			  <option th:each="item:${readyTasks}" th:value="${item.jobDisplayName}" th:attr="code=${item.scheduleCode},lable=${item.classPath}"  th:text="${item.jobDisplayName}"></option>
+					  </select>
+                </div>
+              </div>
+             <div class="form-group ">
+                <label class="col-sm-3 control-label">任务分组</label>
+                 <div class="col-sm-9">
+					  <select name="jobGroup" data-toggle="select" class="select select-inverse" style="width: 300px;" >
+						 <option th:each="jg:${jobGroupList}" th:value="${jg.groupCode}" th:text="${jg.groupName}"></option>
+					  </select>
+                </div>
+              </div>
+              <div class="form-group ">
+                <label class="col-sm-3 control-label">时间表达式</label>
+                <div class="col-sm-9">
+                    <input class="col-sm-9 form-control" name="cronEx" type="text" style="width: 300px;" />
+                 </div>
+              </div>
+               <div class="form-group" >
+                <label class="col-sm-3 control-label">任务描述</label>
+                <div class="col-sm-9">
+                 	<textarea name="jobDesc" class="form-control" maxlength="30" style="width:300px; height:100px;resize:none;" ></textarea>
+                </div>
+              </div>
+              <div class="form-group" >
+                <label class="col-sm-3 control-label">任务参数配置</label>
+                <div class="col-sm-9">
+                 	<textarea name="jobConfigParams" class="form-control" style="width:300px; height:100px;resize:none;" ></textarea>
+                </div>
+              </div>
+             </form>
+          </div>
+          <div class="modal-footer">
+	            <span id="addSpan">
+	            	<button class="btn btn-sm btn-inverse" type="button" id="doAdd">
+	            		<span class="fui-check"></span>保存
+	            	</button>
+	            </span>
+	            <span id="updateSpan" style="display:none">
+		            <button class="btn btn-sm btn-inverse" type="button" id="doUpdate">
+		            	<span class="fui-check"></span>保存
+		            </button>
+	            </span>
+	            <button class="btn btn-sm" type="button" data-dismiss="modal">
+	            	<span class="fui-cross"></span>取消
+	           	</button>
+          </div>
+      </div>
+      <!-- /.modal-content --> 
+    </div>
+    <!-- /.modal-dialog --> 
+  </div>
+  <!--confirm-->
+  <div aria-hidden="false" id="confirmModal" role="dialog" tabindex="-1" class="modal fade in exam_newbox" >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+          <span class="modal-title" style="font-weight:bold;">系统提示</span>
+        </div>
+        <div class="modal-body role_over" id="confirmBody">
+           	
+        </div>
+        <div class="modal-footer">
+	            <button id="confirmButton1" class="btn btn-sm btn-inverse" type="button">
+	            	<span class="fui-check"></span>确定
+	            </button>
+	            <button id="confirmButton2" class="btn btn-sm" type="button" data-dismiss="modal">
+	            	<span class="fui-cross"></span>取消
+	           	</button>
+         </div>
+      </div>
+    </div>
+  </div>
+  <!-- end edit -->
+ 	<script type="text/javascript" th:inline="javascript">
+ 		function fun_update(jobId){
+ 			$.ajax({
+                url : /*[[@{/ajax/scheduleJob/selectById}]]*/,
+                type : 'post',
+                data : {
+                    'jobId' : jobId,
+                },
+                success : function(data) {
+                    var tModal = $("#editModal");
+                    tModal.find($("select[name='jobName']")).val(data.jobName);
+                    tModal.find($("input[name='cronEx']")).val(data.cronExpression);
+                    tModal.find($("input[name='jobId']")).val(data.jobId);
+                    tModal.find($("textarea[name='jobDesc']")).val(data.jobDesc);
+                    tModal.find($("textarea[name='jobConfigParams']")).val(data.jobConfigParams);
+                    tModal.find($("select[name='jobGroup']")).val(data.jobGroup);
+                    tModal.modal("show");
+                    $('#addSpan').hide();
+                    $('#updateSpan').show();	
+                    $('#myModalLabel').html('修改定时任务');
+                }
+            });
+ 		}
+ 		/**
+ 		  * 新增任务
+ 		  */
+ 		function fun_add(){
+ 			var tModal = $("#editModal");
+ 			tModal.modal("show");
+            $('#addSpan').show();
+            $('#updateSpan').hide();	
+            $('#myModalLabel').html('新增定时任务');
+            var tModal = $("#editModal");
+            tModal.find($("input[name='cronEx']")).val('');
+            tModal.find($("textarea[name='jobDesc']")).val('');
+            tModal.find($("textarea[name='jobConfigParams']")).val('');
+            tModal.find($("select[name='jobGroup']")).val($("#searchObjGroupSelect").val());
+            
+ 		}
+ 		/**
+ 		  * 暂停或恢复
+ 		  */
+ 		function fun_pause(scheduleJobId,status,obj){
+ 			if($(obj).hasClass("todo-done")){
+ 				confirmModel("确定要暂停吗？",function(){
+ 					$.ajax({
+		                url : /*[[@{/scheduleJob/pause}]]*/,
+		                type : 'post',
+		                data : {
+		                    'scheduleJobId' : scheduleJobId,
+		                }
+		            }).done(function(data){
+		            	$("#form1").submit();
+		            	$(obj).removeClass("todo-done");
+		            }).fail(function(data){
+		            	showErrorAlert(data);
+		            });
+ 				},function(){
+ 					$(obj).addClass("todo-done");
+ 				});
+ 			}else{
+ 				confirmModel('确定要恢复运行吗？',function(){
+ 					$.ajax({
+ 		                url : /*[[@{/scheduleJob/resume}]]*/,
+ 		                type : 'post',
+ 		                data : {
+ 		                    'scheduleJobId' : scheduleJobId,
+ 		                }
+ 		            }).done(function(data){
+ 		            	$("#form1").submit();
+ 		            	$(obj).addClass("todo-done");
+ 		            }).fail(function(data){
+ 		            	showErrorAlert(data);
+ 		            });
+ 				},function(){
+ 					$(obj).removeClass("todo-done");
+ 				});
+ 			}
+ 		}
+ 		/**
+ 		  * 运行一次
+ 		  */
+ 		 function fun_runonce(scheduleJobId){
+ 			confirmModel("运行一次？",function(){
+ 				$.ajax({
+		                url : /*[[@{/scheduleJob/runOnce}]]*/,
+		                type : 'post',
+		                data : {
+		                    'scheduleJobId' : scheduleJobId,
+		                }
+		            }).done(function(data){
+		            	$("#form1").submit();
+		            }).fail(function(data){
+		            	showErrorAlert(data);
+		            });
+ 			});	
+ 	 	}
+ 		/**
+ 		  * 删除
+ 		  */
+ 		 function fun_delete(scheduleJobId){
+ 			confirmModel('确认删除吗？',function(){
+ 				$.ajax({
+	                url : /*[[@{/scheduleJob/delete}]]*/,
+	                type : 'post',
+	                data : {
+	                    'scheduleJobId' : scheduleJobId,
+	                }
+	            }).done(function(data){
+	            	$("#form1").submit();
+	            }).fail(function(data){
+	            	showErrorAlert(data);
+	            });
+ 			});	
+	 	}
+ 		function confirmModel(text,fun1,fun2){
+ 			$("#confirmModal").modal("show");
+ 			$("#confirmBody").html(text);
+ 			$('#confirmButton1').unbind();
+ 			$("#confirmButton1").bind("click",fun1);
+ 			$("#confirmButton1").bind("click",function(){$("#confirmModal").modal("hide");});
+ 			$('#confirmButton2').unbind();
+ 			$("#confirmButton2").bind("click",fun2);
+ 		}
+ 		function showErrorAlert(text){
+ 			Messenger().post({
+ 				  message: text,
+ 				  type: 'error',
+ 				  showCloseButton: true
+			});
+ 		}
+ 		function closeAllCM(){
+ 			$("div[id^='context-menu']").hide();
+ 		}
+ 		
+ 	</script>
+    
+    <script type="text/javascript" th:inline="javascript">
+        $(function(){
+        	if (!!window.EventSource) { 
+        		var jobGroup = $("#searchObjGroupSelect").val();
+        		//发送消息
+                var source = new EventSource('getExecList?jobGroup='+jobGroup);
+                //添加客户端的监听
+                source.addEventListener('message', function(e) {
+                	updateStatusDiv(JSON.parse(e.data));
+                });
+                source.addEventListener('open', function(e) {
+                }, false);
+                source.addEventListener('error',function(e){
+                    if(e.readyState==EventSource.CLOSED){
+                        console.log("连接关闭");
+                    }else{
+                    	
+                    }
+                });
+            }else{
+                console.log("您的浏览器不支持SSE");
+            }
+        	function updateStatusDiv(result) {
+				$("div[id^='statusDiv']").each(function(){
+					$(this).html("");
+					var jobId = $(this).attr("id");
+					jobId = jobId.substr(9,jobId.length);
+					$.each(result.execList,function(index,obj){
+						//<![CDATA[
+						if(obj.jobStatus == "NORMAL" && obj.jobId == jobId){
+							$("#statusDiv"+obj.jobId).append('<span class="green" >●</span>');
+						}
+						//]]>
+					});
+					$.each(result.allList,function(index,obj){
+						if(obj.jobId == jobId){
+							if(obj.jobStatus == 'PAUSED'){
+								 $("#statusDiv"+obj.jobId).append('<span class="gray" >●</span>');
+							}
+							if(obj.jobStatus == 'BLOCKED'){
+								 $("#statusDiv"+obj.jobId).append('<span class="yellow" >●</span>');
+							}
+						}
+					});
+				});  
+        	}
+        	
+        	Messenger.options = {
+        		    extraClasses: 'messenger-fixed messenger-on-top',
+        		    theme: 'block'
+       		};
+        	$("#searchObjGroupSelect").bind("change",function(){
+        		  $("#form1").submit();
+        	});
+        	$("#doAdd").bind("click",function(){
+        			var tModal = $("#editModal");
+                    var jobName = tModal.find($("select[name='jobName']")).val();
+                    var aliasName = tModal.find($("select[name='jobName'] option:selected")).attr("lable");
+                    var jobCode = tModal.find($("select[name='jobName'] option:selected")).attr("code");
+                    var jobGroup = tModal.find($("select[name='jobGroup'] option:selected")).val();
+                    var cronEx = tModal.find($("input[name='cronEx']")).val();
+                    var jobDesc = tModal.find($("textarea[name='jobDesc']")).val();
+                    var jobConfigParams = tModal.find($("textarea[name='jobConfigParams']")).val();
+                    if(cronEx == ''){
+                    	showErrorAlert("请输入时间表达式");
+                        return false;
+                    }else if(jobDesc == ''){
+                    	showErrorAlert("请输入任务描述");
+                        return false;
+                    }else{
+                        $.ajax({
+                            url : /*[[@{/ajax/scheduleJob/add}]]*/,
+                            type : 'post',
+                            data : {
+                                'jobGroup' : jobGroup,
+                                'jobName' : jobName,
+                                'aliasName' : aliasName,
+                                'cronExpression' : cronEx,
+                                'jobDesc' : jobDesc,
+                                'jobCode' : jobCode,
+                                'jobConfigParams': jobConfigParams
+                            },
+                            success : function(result) {
+                                if(result == "success"){
+                                    $("#form1").submit();
+                                }
+                                if(result == "double"){
+                                    showErrorAlert("该任务已存在！"); 
+                                    $("#form1").submit();
+                                }
+                                if(result == 'errorExpression'){
+                                    showErrorAlert("错误Cron表达式!");
+                                }
+                                if(result == "error"){
+                                    showErrorAlert("添加失败");
+                                }
+                                
+                            }
+                        });
+                    }
+        	});
+        });
+    </script>
+    
+    <script type="text/javascript" th:inline="javascript">
+        $(function(){
+        	$('[data-toggle="select"]').select2();
+        	
+        	$("#doUpdate").bind("click",function(){
+        			var tModal = $("#editModal");
+                    var jobName = tModal.find($("select[name='jobName']")).val();
+                    var aliasName = tModal.find($("select[name='jobName'] option:selected")).attr("lable");
+                    var cronEx = tModal.find($("input[name='cronEx']")).val();
+                    var jobId = tModal.find($("input[name='jobId']")).val();
+                    var jobDesc = tModal.find($("textarea[name='jobDesc']")).val();
+                    var jobConfigParams = tModal.find($("textarea[name='jobConfigParams']")).val();
+                    var jobGroup = tModal.find($("select[name='jobGroup'] option:selected")).val();
+                    if(cronEx == ''){
+                    	showErrorAlert("请输入时间表达式");
+                        return false;
+                    }else if(jobDesc == ''){
+                    	showErrorAlert("请输入任务描述");
+                        return false;
+                    }else{
+                        $.ajax({
+                            url : /*[[@{/ajax/scheduleJob/update}]]*/,
+                            type : 'post',
+                            data : {
+                            	'jobId'	   : jobId,
+                                'jobGroup' : jobGroup,
+                                'jobName' : jobName,
+                                'aliasName' : aliasName,
+                                'cronExpression' : cronEx,
+                                'jobDesc' : jobDesc,
+                                'jobConfigParams':jobConfigParams
+                            },
+                            success : function(result) {
+                                if(result === "success"){
+                                    $("#form1").submit();
+                                }
+                                if(result === 'errorExpression'){
+                                    showErrorAlert("错误Cron表达式!");
+                                }
+                                if(result === 'error'){
+                                    showErrorAlert("修改失败");
+                                }
+                            }
+                        });
+                    }
+        	});
+        });
+    </script>
+</body>
+</html>

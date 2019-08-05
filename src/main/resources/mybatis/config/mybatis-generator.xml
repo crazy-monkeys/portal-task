@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE generatorConfiguration  
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"  
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">  
+<generatorConfiguration>  
+      
+    <context id="DB2Tables" targetRuntime="MyBatis3">  
+        <commentGenerator>  
+            <property name="suppressDate" value="true"/>  
+            <property name="suppressAllComments" value="true"/>  
+        </commentGenerator>  
+        <jdbcConnection driverClass="org.postgresql.Driver"
+         	connectionURL="jdbc:postgresql://127.0.0.1:5432/portal?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false"
+         	userId="root"
+         	password="123456">
+       
+        </jdbcConnection>  
+        <javaTypeResolver>  
+            <property name="forceBigDecimals" value="false"/>  
+        </javaTypeResolver>  
+        <javaModelGenerator targetPackage="com.crazy.portal.entity" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>  
+            <property name="trimStrings" value="true"/>  
+        </javaModelGenerator>  
+        <sqlMapGenerator targetPackage="com.crazy.portal.dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>  
+        </sqlMapGenerator>  
+       
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.crazy.portal.dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>  
+        </javaClientGenerator>  
+       <!--  <table tableName="t_schedule_job" domainObjectName="ScheduleJob" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>  --> 
+        <table tableName="temp_xxgl_no_member" domainObjectName="TempXxglNoMember" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+    </context>  
+</generatorConfiguration>  
