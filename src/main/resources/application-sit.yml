@@ -1,10 +1,6 @@
 logging:
   config: classpath:logback-sit.xml
 
-camel:
-    springboot:
-        main-run-controller: true
-
 spring:
   mail:
     host: smtp.qq.com

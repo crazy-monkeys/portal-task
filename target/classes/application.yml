@@ -3,6 +3,10 @@ server:
   servlet:
     context-path: /portal-task
 
+camel:
+    springboot:
+        main-run-controller: true
+
 spring:
     batch:
         initializer:

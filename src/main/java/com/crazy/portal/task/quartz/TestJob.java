@@ -1,4 +1,4 @@
-package com.crazy.portal.task.postgre.quartz;
+package com.crazy.portal.task.quartz;
 
 
 import com.crazy.portal.config.quartz.annotation.Task;
