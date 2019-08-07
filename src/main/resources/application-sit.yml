@@ -1,5 +1,5 @@
 logging:
-  config: classpath:logback-dev.xml
+  config: classpath:logback-sit.xml
 
 camel:
     springboot:
@@ -7,19 +7,19 @@ camel:
 
 spring:
   mail:
-    host: smtp.qq.com #发送邮件服务器
-    username: biao.chenit@qq.com #QQ邮箱
-    password: ewennkedjtdebeca #客户端授权码
-    protocol: smtp #发送邮件协议
+    host: smtp.qq.com
+    username: biao.chenit@qq.com
+    password: ewennkedjtdebeca
+    protocol: smtp
     properties.mail.smtp.auth: true
-    properties.mail.smtp.port: 465 #端口号465或587
-    properties.mail.display.sendmail: Javen #可以任意
-    properties.mail.display.sendname: Spring Boot Guide Email #可以任意
+    properties.mail.smtp.port: 465
+    properties.mail.display.sendmail: Javen
+    properties.mail.display.sendname: Spring Boot Guide Email
     properties.mail.smtp.starttls.enable: true
     properties.mail.smtp.starttls.required: true
     properties.mail.smtp.ssl.enable: true
     default-encoding: utf-8
-    from: ${spring.mail.username} #与上面的username保持一致
+    from: ${spring.mail.username}
 
 
   datasource:
