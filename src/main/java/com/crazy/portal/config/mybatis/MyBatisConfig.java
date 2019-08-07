@@ -25,34 +25,14 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 @Configuration
 public class MyBatisConfig implements TransactionManagementConfigurer{
 	
-    @Resource(name="dynamicDataSource")
+    @Resource
 	DataSource dynamicDataSource;
-    
-    @Resource(name="odsDataSource")
-	DataSource odsDataSource;
-    
-	
+
     @Bean(name = "sqlSessionFactory")
     @Primary
     public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
     	SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dynamicDataSource);
-        bean.setTypeAliasesPackage("com.crazy.portal.entity");
-
-        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        try {
-            bean.setMapperLocations(resolver.getResources("classpath:mybatis/mapper/**/*.xml"));
-            return bean.getObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-    
-    @Bean(name = "odsSqlSessionFactory")
-    public SqlSessionFactory odsSqlSessionFactory() throws Exception {
-    	SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(odsDataSource);
         bean.setTypeAliasesPackage("com.crazy.portal.entity");
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();

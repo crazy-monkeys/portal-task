@@ -1,0 +1,29 @@
+logging:
+  config: classpath:logback-dev.xml
+
+camel:
+    springboot:
+        main-run-controller: true
+
+spring:
+  mail:
+    host: smtp.qq.com #�����ʼ�������
+    username: biao.chenit@qq.com #QQ����
+    password: ewennkedjtdebeca #�ͻ�����Ȩ��
+    protocol: smtp #�����ʼ�Э��
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.port: 465 #�˿ں�465��587
+    properties.mail.display.sendmail: Javen #��������
+    properties.mail.display.sendname: Spring Boot Guide Email #��������
+    properties.mail.smtp.starttls.enable: true
+    properties.mail.smtp.starttls.required: true
+    properties.mail.smtp.ssl.enable: true
+    default-encoding: utf-8
+    from: ${spring.mail.username} #�������username����һ��
+
+
+  datasource:
+    username: root
+    password: ThreeApe!@#$2019
+    url: jdbc:mysql://47.100.106.186:3306/portal?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver

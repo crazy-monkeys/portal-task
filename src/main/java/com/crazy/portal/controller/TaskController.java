@@ -196,7 +196,7 @@ public class TaskController {
 	 * @param jobGroup
 	 * @return
 	 */
-    @RequestMapping(value = "/scheduleJob/getExecList",produces={"text/event-stream"})
+    @RequestMapping(value = "/scheduleJob/getExecList")
     public @ResponseBody String getExecList(String jobGroup,HttpServletResponse res) {
     	Map<String,Object> map = new HashMap<>();
     	List<ScheduleJob> executingJobList;

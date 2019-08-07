@@ -2,9 +2,11 @@ package com.crazy.portal.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.crazy.portal.bean.BaseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -22,7 +24,7 @@ public class LoginController {
 	@Value("${login.password}")
 	String password;
 	
-	@RequestMapping("/login.html")
+	@RequestMapping("/login")
 	public String login(){
 		return "login";
 	}
@@ -32,11 +34,10 @@ public class LoginController {
 	 * @param password
 	 * @return
 	 */
-	@RequestMapping("/loginCheck.html")
-	@ResponseBody
-	public String loginCheck(String userName,String password,HttpServletRequest req){
+	@RequestMapping("/loginCheck")
+	public @ResponseBody String loginCheck(String userName, String password, HttpServletRequest request){
 		if(userName.equals(this.userName) && password.equals(this.password)){
-			req.getSession().setAttribute("isLogin", true);
+			request.getSession().setAttribute("isLogin", true);
 			return "succeed";
 		}else{
 			return "fail";

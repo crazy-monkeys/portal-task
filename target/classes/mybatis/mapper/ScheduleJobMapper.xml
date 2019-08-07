@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crazy.portal.dao.ScheduleJobMapper">
+  <resultMap id="BaseResultMap" type="com.crazy.portal.entity.ScheduleJob">
+    <id column="job_id" jdbcType="INTEGER" property="jobId" />
+    <result column="job_name" jdbcType="VARCHAR" property="jobName" />
+    <result column="job_group" jdbcType="VARCHAR" property="jobGroup" />
+    <result column="job_status" jdbcType="VARCHAR" property="jobStatus" />
+    <result column="cron_expression" jdbcType="VARCHAR" property="cronExpression" />
+    <result column="job_desc" jdbcType="VARCHAR" property="jobDesc" />
+    <result column="alias_name" jdbcType="VARCHAR" property="aliasName" />
+    <result column="job_trigger" jdbcType="VARCHAR" property="jobTrigger" />
+    <result column="is_sync" jdbcType="INTEGER" property="isSync" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="job_config_params" jdbcType="VARCHAR" property="jobConfigParams" />
+    <result column="job_code" jdbcType="VARCHAR" property="jobCode" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    job_id, job_name, job_group, job_status, cron_expression, job_desc, alias_name, job_trigger, 
+    is_sync, create_date, update_date, job_config_params, job_code
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_schedule_job
+    where job_id = #{jobId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByJobCode" resultMap="BaseResultMap"  parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List" />
+    from t_schedule_job
+    where job_code = #{jobCode}
+  </select>
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_schedule_job
+    where job_id = #{jobId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.crazy.portal.entity.ScheduleJob">
+    insert into t_schedule_job (job_name, job_group,
+      job_status, cron_expression, job_desc, 
+      alias_name, job_trigger, is_sync, 
+      create_date, update_date, job_config_params, 
+      job_code)
+    values (#{jobName,jdbcType=VARCHAR}, #{jobGroup,jdbcType=VARCHAR}, 
+      #{jobStatus,jdbcType=VARCHAR}, #{cronExpression,jdbcType=VARCHAR}, #{jobDesc,jdbcType=VARCHAR}, 
+      #{aliasName,jdbcType=VARCHAR}, #{jobTrigger,jdbcType=VARCHAR}, #{isSync,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP}, #{jobConfigParams,jdbcType=VARCHAR}, 
+      #{jobCode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crazy.portal.entity.ScheduleJob">
+    insert into t_schedule_job
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="jobName != null">
+        job_name,
+      </if>
+      <if test="jobGroup != null">
+        job_group,
+      </if>
+      <if test="jobStatus != null">
+        job_status,
+      </if>
+      <if test="cronExpression != null">
+        cron_expression,
+      </if>
+      <if test="jobDesc != null">
+        job_desc,
+      </if>
+      <if test="aliasName != null">
+        alias_name,
+      </if>
+      <if test="jobTrigger != null">
+        job_trigger,
+      </if>
+      <if test="isSync != null">
+        is_sync,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="updateDate != null">
+        update_date,
+      </if>
+      <if test="jobConfigParams != null">
+        job_config_params,
+      </if>
+      <if test="jobCode != null">
+        job_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="jobName != null">
+        #{jobName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobGroup != null">
+        #{jobGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="jobStatus != null">
+        #{jobStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="cronExpression != null">
+        #{cronExpression,jdbcType=VARCHAR},
+      </if>
+      <if test="jobDesc != null">
+        #{jobDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="aliasName != null">
+        #{aliasName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobTrigger != null">
+        #{jobTrigger,jdbcType=VARCHAR},
+      </if>
+      <if test="isSync != null">
+        #{isSync,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null">
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jobConfigParams != null">
+        #{jobConfigParams,jdbcType=VARCHAR},
+      </if>
+      <if test="jobCode != null">
+        #{jobCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crazy.portal.entity.ScheduleJob">
+    update t_schedule_job
+    <set>
+      <if test="jobName != null">
+        job_name = #{jobName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobGroup != null">
+        job_group = #{jobGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="jobStatus != null">
+        job_status = #{jobStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="cronExpression != null">
+        cron_expression = #{cronExpression,jdbcType=VARCHAR},
+      </if>
+      <if test="jobDesc != null">
+        job_desc = #{jobDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="aliasName != null">
+        alias_name = #{aliasName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobTrigger != null">
+        job_trigger = #{jobTrigger,jdbcType=VARCHAR},
+      </if>
+      <if test="isSync != null">
+        is_sync = #{isSync,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null">
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jobConfigParams != null">
+        job_config_params = #{jobConfigParams,jdbcType=VARCHAR},
+      </if>
+      <if test="jobCode != null">
+        job_code = #{jobCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where job_id = #{jobId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.crazy.portal.entity.ScheduleJob">
+    update t_schedule_job
+    set job_name = #{jobName,jdbcType=VARCHAR},
+      job_group = #{jobGroup,jdbcType=VARCHAR},
+      job_status = #{jobStatus,jdbcType=VARCHAR},
+      cron_expression = #{cronExpression,jdbcType=VARCHAR},
+      job_desc = #{jobDesc,jdbcType=VARCHAR},
+      alias_name = #{aliasName,jdbcType=VARCHAR},
+      job_trigger = #{jobTrigger,jdbcType=VARCHAR},
+      is_sync = #{isSync,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_date = #{updateDate,jdbcType=TIMESTAMP},
+      job_config_params = #{jobConfigParams,jdbcType=VARCHAR},
+      job_code = #{jobCode,jdbcType=VARCHAR}
+    where job_id = #{jobId,jdbcType=INTEGER}
+  </update>
+  
+  <select id="getAll" resultMap="BaseResultMap"  >
+   select 
+   <include refid="Base_Column_List" />
+      FROM t_schedule_job t <if test="jobGroup != null"> WHERE JOB_GROUP = #{jobGroup} </if>
+  </select>
+  
+  <select id="selectByJobName" resultMap="BaseResultMap" parameterType="string">
+   select 
+   <include refid="Base_Column_List" />
+       from t_schedule_job where job_name = #{jobName} <if test="jobGroup != null"> AND JOB_GROUP = #{jobGroup} </if>
+  </select>
+  
+  
+</mapper>

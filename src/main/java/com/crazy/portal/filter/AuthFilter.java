@@ -1,5 +1,6 @@
 package com.crazy.portal.filter;
 
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -8,7 +9,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 /**
@@ -16,8 +16,9 @@ import javax.servlet.http.HttpServletResponse;
  * @author xin.xia
  * @date 2017-10-11
  */
-@WebFilter(urlPatterns={"/scheduleJob/list","/"})
 public class AuthFilter implements Filter{
+
+	String[] includeUrls = new String[]{"/login", "/static"};
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
@@ -25,10 +26,11 @@ public class AuthFilter implements Filter{
 		HttpServletRequest req = (HttpServletRequest)request;
 		HttpServletResponse rep = (HttpServletResponse)response;
 		Boolean isLogin = req.getSession().getAttribute("isLogin")==null?null:(Boolean)req.getSession().getAttribute("isLogin");
-		if(isLogin!= null && isLogin){
+		String uri = req.getRequestURI();
+		if((isLogin!= null && isLogin) || !isNeedFilter(uri)){
 			filterChain.doFilter(request, response);
 		}else{
-			rep.sendRedirect(req.getContextPath()+"/login.html");
+			rep.sendRedirect(req.getContextPath()+"/login");
 		}
 	}
 
@@ -42,5 +44,17 @@ public class AuthFilter implements Filter{
 	public void destroy() {
 		// TODO Auto-generated method stub
 
+	}
+
+	/**
+	 * @Description: 是否需要过滤
+	 */
+	public boolean isNeedFilter(String uri) {
+		for (String includeUrl : includeUrls) {
+			if(includeUrl.equals(uri) || uri.contains(includeUrl)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
