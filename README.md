@@ -8,21 +8,9 @@ Mybatis插件使用 >>>>
       右击项目，run as-> maven build 在goals中输入命令：mybatis-generator:generate
    For idea
       直接点开maven projects窗口双击Plugins/mybatis-generator/mybatis-generator:generate
-      注意：关于ODS数据库所有映射不允许生成增删改的方法,为了避免由于数据源对ods库出现误操作
-****************************************************************************************************************************************
-多数据源的使用 >>>>
-
-      初衷：本项目将为多数据源进行同步，application.properties中会配置多个数据源，
-           util包下面Dynamic的类接合注解使用将路由到配置的库
-           
-      具体使用：在Service层中用@DataSource标记库，不标记则默认使用主库，如下demo将使用名称为xxx的数据库
-            @DataSource(name="xxx")
-			public int selectUser(){
-				return userMapper.selectByPrimaryKey(1).getId();
-			}
       
 ****************************************************************************************************************************************
 数据源的sql监控，黑名单、防sql注入、url访问次数等访问>>>>
 
-      ip：port/data-treating/druid
+      ip：port/portal-task/druid
 ****************************************************************************************************************************************
